@@ -1,2 +1,2 @@
 # CPSC222
-Repository for class.
+Wyatt Foster
