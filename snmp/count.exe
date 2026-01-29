@@ -1,32 +1,32 @@
+#!/usr/bin/perl
 use strict;
 use warnings;
 use Getopt::Long;
 
 my $show_all=0;
-GetOptions('a'=>\$show_all);
+GetOptions('a' => \$show_all);
 
-my @logfiles=('/var/log/auth.log','/var/log/secure');
-my $logfile;
+my $logfile='/var/log/auth.log';
+exit 0 unless -r $logfile;
 
-foreach my $file (@logfiles){
-	if (-r $file){
-		$logfile=$file;
-		last;
-	}
-}
-
-exit 0 unless $logfile;
-
-open(my $fh,'<',$logfile) or exit 0;
+open(my $fh,'<',$logfile) or die "Can't open $logfile: $!";
 
 my @arrsudo;
 
-while (my $line=<$fh>){
-	if ($line=~ /^(\w+\s+\d+\s+\d+:\d+).*sudo:\s+(\w+).*USER=(\w+)/){
-		push @arrsudo,{
-			datetime=> $1,
-			src     => $2,
-			dst     => $3
+while (my $line = <$fh>){
+	if ($line =~ /^
+	   (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})
+	   \.\d+[-+]\d{2}:\d{2}\s+\S+sudo:\s+
+	   \s*([\w\-]+)\s*:
+	   .*USER=([\w\-]+)
+	/x){
+		my($datetime,$src,$dst)=($1,$2,$3);
+		next unless defined $datetime && defined $src && defined $dst;
+		$datetime =~ s/T/ /;
+		push @arrsudo, {
+			datetime => $datetime,
+			src      => $src,
+			dst      => $dst
 		};
 	}
 }
@@ -37,13 +37,12 @@ if($show_all){
 	printf "%-20s %-15s %-15s\n", "DATE / TIME","SOURCE USER","TARGET USER";
 	printf "%-20s %-15s %-15s\n", "-" x 20,"-" x 15,"-" x 15;
 
-	foreach my $entry(@arrsudo){
+	foreach my $entry (@arrsudo){
 		printf"%-20s %-15s %-15s\n",
-			$entry->{datetime},
-			$entry->{src},
-			$entry->{dst};
+			$entry->{datetime} // '',
+			$entry->{src}      // '',
+			$entry->{dst}      // '';
 
-		}
 	}
 } else{
 	print scalar(@arrsudo);
