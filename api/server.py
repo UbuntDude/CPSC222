@@ -10,10 +10,10 @@ if __name__=="__main__":
     listener_socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     listener_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-    address_port=("10.50.19.230", 3000)
+    address_port=("10.50.23.216", 3000)
     listener_socket.bind(address_port)
     listener_socket.listen(1)
-    print("Server listening @ 10.50.19.230:3000")
+    print("Server listening @ 10.50.23.216:3000")
 
     while True:
         read_ready_sockets, _, _=select.select([listener_socket],[],[],0)
