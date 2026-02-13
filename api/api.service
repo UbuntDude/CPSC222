@@ -2,8 +2,8 @@
 Description=CPSC222 Python HTTP API
 After=network.target
 [Service]
-ExecStart=CPSC222/api/server.py
+ExecStart=/usr.bin/python3 /home/user/CPSC222/api/server.py
 Type=exec
-Restart=on-abnormal
+Restart=always
 [Install]
 WantedBy=default.target
